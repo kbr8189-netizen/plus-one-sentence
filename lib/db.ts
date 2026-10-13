@@ -1,58 +1,71 @@
 import { randomUUID } from "node:crypto";
-import { Redis } from "@upstash/redis";
+import postgres from "postgres";
 import { ENTRIES, PLEDGES, STEALS, loadFeed as loadBlobFeed, type Entry, type Feed, type Pledge } from "@/lib/practice";
 import { bumpVersion, listKeys, removeKeys, writeJson } from "@/lib/store";
 
-// 저장소: Upstash Redis 환경 변수가 있으면 Redis, 없으면 Vercel Blob(로컬에서는 .data/)
-const REDIS_ENV = !!(
-  (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
-  (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-);
-const redis = REDIS_ENV ? Redis.fromEnv() : null;
+// 저장소: Neon(Postgres) 연결 주소가 있으면 Postgres, 없으면 Vercel Blob(로컬에서는 .data/)
+const DB_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const sql = DB_URL
+  ? postgres(DB_URL, { max: 1, prepare: false, idle_timeout: 20, ssl: /localhost|127\.0\.0\.1/.test(DB_URL) ? false : "require" })
+  : null;
 
-const K = { entries: "hp:entries", steals: "hp:steals", pledges: "hp:pledges" };
+// 표는 처음 쓸 때 자동으로 만듭니다.
+let ready: Promise<unknown> | null = null;
+function db() {
+  if (!sql) return null;
+  ready ??= sql`
+    CREATE TABLE IF NOT EXISTS hp_entries (id text PRIMARY KEY, data jsonb NOT NULL, created_at bigint NOT NULL);
+    CREATE TABLE IF NOT EXISTS hp_pledges (id text PRIMARY KEY, data jsonb NOT NULL, created_at bigint NOT NULL);
+    CREATE TABLE IF NOT EXISTS hp_steals (id bigserial PRIMARY KEY, entry_id text NOT NULL, store text NOT NULL DEFAULT '', created_at bigint NOT NULL);
+  `.simple().catch((e) => {
+    ready = null;
+    throw e;
+  });
+  return ready.then(() => sql);
+}
 
 export async function addEntry(entry: Entry) {
-  if (redis) return void (await redis.hset(K.entries, { [entry.id]: JSON.stringify(entry) }));
+  const q = await db();
+  if (q) return void (await q`INSERT INTO hp_entries ${q({ id: entry.id, data: q.json(entry), created_at: entry.createdAt })}`);
   await writeJson(`${ENTRIES}${entry.id}.json`, entry);
   await bumpVersion();
 }
 
-// 훔쳐가기 1회 = Redis에서는 카운터 +1, Blob에서는 문서 1개 (동시에 눌러도 안전)
+// 훔쳐가기 1회 = 행(또는 문서) 1개 추가 (카운터를 고치지 않아 동시에 눌러도 안전)
 export async function addSteal(entryId: string, store: string) {
-  if (redis) return void (await redis.hincrby(K.steals, entryId, 1));
+  const q = await db();
+  if (q) return void (await q`INSERT INTO hp_steals ${q({ entry_id: entryId, store, created_at: Date.now() })}`);
   await writeJson(`${STEALS}${entryId}/${randomUUID()}.json`, { entryId, store, createdAt: Date.now() });
   await bumpVersion();
 }
 
 export async function addPledge(pledge: Pledge) {
-  if (redis) return void (await redis.hset(K.pledges, { [pledge.id]: JSON.stringify(pledge) }));
+  const q = await db();
+  if (q) return void (await q`INSERT INTO hp_pledges ${q({ id: pledge.id, data: q.json(pledge), created_at: pledge.createdAt })}`);
   await writeJson(`${PLEDGES}${pledge.id}.json`, pledge);
   await bumpVersion();
 }
 
-const parse = <T,>(v: unknown): T => (typeof v === "string" ? JSON.parse(v) : v) as T;
-
 export async function loadFeed(): Promise<Feed> {
-  if (!redis) return loadBlobFeed();
-  const [e, s, p] = await Promise.all([
-    redis.hgetall<Record<string, unknown>>(K.entries),
-    redis.hgetall<Record<string, unknown>>(K.steals),
-    redis.hgetall<Record<string, unknown>>(K.pledges),
+  const q = await db();
+  if (!q) return loadBlobFeed();
+  const [e, p, s] = await Promise.all([
+    q<{ data: Entry }[]>`SELECT data FROM hp_entries ORDER BY created_at DESC LIMIT 500`,
+    q<{ data: Pledge }[]>`SELECT data FROM hp_pledges ORDER BY created_at DESC LIMIT 300`,
+    q<{ entry_id: string; n: number }[]>`SELECT entry_id, count(*)::int AS n FROM hp_steals GROUP BY entry_id`,
   ]);
-  const entries = Object.values(e ?? {}).map((v) => parse<Entry>(v)).sort((a, b) => b.createdAt - a.createdAt);
-  const pledges = Object.values(p ?? {}).map((v) => parse<Pledge>(v)).sort((a, b) => b.createdAt - a.createdAt);
   const steals: Record<string, number> = {};
   let totalSteals = 0;
-  for (const [id, n] of Object.entries(s ?? {})) {
-    steals[id] = Number(n) || 0;
-    totalSteals += steals[id];
+  for (const r of s) {
+    steals[r.entry_id] = r.n;
+    totalSteals += r.n;
   }
-  return { entries, steals, totalSteals, pledges };
+  return { entries: e.map((r) => r.data), steals, totalSteals, pledges: p.map((r) => r.data) };
 }
 
 export async function resetAll() {
-  if (redis) return void (await redis.del(K.entries, K.steals, K.pledges));
+  const q = await db();
+  if (q) return void (await q`TRUNCATE hp_entries, hp_pledges, hp_steals`);
   const keys = (await Promise.all([ENTRIES, STEALS, PLEDGES].map(listKeys))).flat();
   await removeKeys(keys);
   await bumpVersion();
