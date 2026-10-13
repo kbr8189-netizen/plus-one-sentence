@@ -75,3 +75,18 @@ export async function resetAll() {
   await removeKeys(keys);
   await bumpVersion();
 }
+
+// /api/health 에서 쓰는 점검 정보 (비밀 값은 내보내지 않음)
+export async function health() {
+  const names = Object.keys(process.env).filter((k) => /URL|DATABASE|POSTGRES|PG|BLOB|NEON/.test(k) && !/^VERCEL_/.test(k)).sort();
+  const out: Record<string, unknown> = { mode: sql ? "postgres" : "blob", envNames: names };
+  try {
+    const f = await loadFeed();
+    out.ok = true;
+    out.entries = f.entries.length;
+  } catch (e) {
+    out.ok = false;
+    out.error = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
+  }
+  return out;
+}
