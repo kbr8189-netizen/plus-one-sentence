@@ -1,5 +1,5 @@
-import { ENTRIES, EXP_TYPES, EYE_TYPES, STORES, newId, oneOf, text, type Entry } from "@/lib/practice";
-import { bumpVersion, writeJson } from "@/lib/store";
+import { addEntry } from "@/lib/db";
+import { EXP_TYPES, EYE_TYPES, STORES, newId, oneOf, text, type Entry } from "@/lib/practice";
 
 export async function POST(request: Request) {
   const b = (await request.json().catch(() => null)) as Record<string, unknown> | null;
@@ -18,8 +18,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "닉네임, 매장, 질문, 한 문장을 확인해 주세요." }, { status: 400 });
   }
   try {
-    await writeJson(`${ENTRIES}${entry.id}.json`, entry);
-    await bumpVersion();
+    await addEntry(entry);
     return Response.json({ entry });
   } catch (e) {
     console.error("save entry failed", e);

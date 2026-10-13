@@ -1,4 +1,4 @@
-import { loadFeed } from "@/lib/practice";
+import { loadFeed } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 

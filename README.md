@@ -9,7 +9,9 @@
 
 - 화면: `public/participant.html`, `public/board.html` (단일 HTML, `next.config.ts`에서 `/`, `/admin`으로 연결)
 - API: Next.js 라우트 (`app/api/*`)
-- 저장: Vercel Blob **비공개** 스토어, 문서 1개 = 파일 1개
+- 저장: **Upstash Redis**(Vercel Storage에서 연결, `KV_REST_API_URL`·`KV_REST_API_TOKEN` 자동 설정)
+  - `hp:entries`, `hp:pledges` 해시(문서 id → JSON), `hp:steals` 해시(entryId → 횟수)
+- Redis 환경 변수가 없으면 Vercel Blob을 씁니다. 문서 1개 = 파일 1개
   - `hp/entries/<id>.json`, `hp/steals/<entryId>/<uuid>.json`, `hp/pledges/<id>.json`
   - `hp/version.json`은 쓰기마다 갱신되어, 바뀐 것이 없으면 목록을 다시 읽지 않습니다.
 
@@ -18,13 +20,14 @@
 | 이름 | 설명 |
 | --- | --- |
 | `ADMIN_PASSWORD` | 강사 보드 비밀번호 |
-| `BLOB_READ_WRITE_TOKEN` | Blob 스토어를 프로젝트에 연결하면 자동 설정 |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | Upstash Redis를 프로젝트에 연결하면 자동 설정 |
+| `BLOB_READ_WRITE_TOKEN` | (Redis 대신 Blob을 쓸 때) Blob 스토어 연결 시 자동 설정 |
 
 ## 로컬 실행
 
 ```bash
 npm install
-ADMIN_PASSWORD=test npm run dev   # Blob 토큰이 없으면 .data/ 폴더에 저장
+ADMIN_PASSWORD=test npm run dev   # Redis·Blob 설정이 없으면 .data/ 폴더에 저장
 ```
 
 ## 교육 전 점검
