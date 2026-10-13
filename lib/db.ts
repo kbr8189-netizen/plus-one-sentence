@@ -4,7 +4,12 @@ import { ENTRIES, PLEDGES, STEALS, loadFeed as loadBlobFeed, type Entry, type Fe
 import { bumpVersion, listKeys, removeKeys, writeJson } from "@/lib/store";
 
 // 저장소: Neon(Postgres) 연결 주소가 있으면 Postgres, 없으면 Vercel Blob(로컬에서는 .data/)
-const DB_URL = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+// (Vercel에서 연결할 때 접두사를 바꾸면 이름이 달라지므로 postgres:// 로 시작하는 값을 찾아 씁니다)
+const DB_URL =
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.STORAGE_URL ||
+  Object.entries(process.env).find(([k, v]) => k.endsWith("_URL") && /^postgres(ql)?:\/\//.test(v ?? ""))?.[1];
 const sql = DB_URL
   ? postgres(DB_URL, { max: 1, prepare: false, idle_timeout: 20, ssl: /localhost|127\.0\.0\.1/.test(DB_URL) ? false : "require" })
   : null;
