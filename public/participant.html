@@ -31,6 +31,7 @@
   --accent-soft:#3A2226; --bar:#111113; --bar-ink:#F2F1EF; --ok:#5CC48F; color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;margin:0}
 .wrap{max-width:1080px;margin:0 auto;padding-inline:18px}
 header.top{background:var(--bar);color:var(--bar-ink)}
@@ -89,27 +90,10 @@ textarea{min-height:76px;resize:vertical}
 .result .line p{margin:0;font-family:var(--font-display);font-weight:900;font-size:clamp(20px,4.6vw,26px);line-height:1.45;overflow-wrap:anywhere}
 .tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;align-self:flex-start}
 .tag.exp{background:var(--ink);color:var(--bg)} .tag.eye{background:var(--accent);color:var(--accent-ink)} .tag.plain{background:var(--surface-2);color:var(--ink-2)}
-.stolenList{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px}
-.stolenList p{margin:0;font-size:15px;color:var(--ink-2)}
-/* 다른 매장 화법 */
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:16px}
-.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
-.ex{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.ex .meta{display:flex;gap:6px;flex-wrap:wrap}
-.ex p{margin:0;font-weight:700;font-size:17px;line-height:1.5;overflow-wrap:anywhere}
-.ex .tip{font-size:13px;color:var(--muted);font-weight:400}
-.steal{appearance:none;font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:7px 14px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);cursor:pointer;align-self:flex-start}
-.steal[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .pledgeCard{margin-top:20px;background:var(--bg);border:3px solid var(--accent);border-radius:18px;padding:24px;display:flex;flex-direction:column;gap:10px}
 .pledgeCard small{color:var(--accent);font-weight:700;letter-spacing:.04em}
 .pledgeCard p{margin:0;font-family:var(--font-display);font-weight:900;font-size:clamp(22px,5vw,30px);line-height:1.45;overflow-wrap:anywhere}
 .note{font-size:13px;color:var(--muted);margin:8px 0 0}
-.secTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;font-family:var(--font-display);font-size:19px;margin:6px 0 12px}
-.secTitle.next{margin-top:30px}
-.ex .base{font-size:14px;color:var(--muted);font-weight:400}
-.ex .count{font-size:13px;color:var(--muted)}
-.ex .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-top:auto}
-.empty{grid-column:1/-1;background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:24px 18px;text-align:center;color:var(--ink-2);font-size:15px}
 </style>
 </head>
 <body>
@@ -117,14 +101,13 @@ textarea{min-height:76px;resize:vertical}
 
 <div class="wrap hero">
   <h1>처리 질문 뒤에,<br><span>한 문장만 더하기</span></h1>
-  <p>내가 평소에 가장 많이 하는 질문 뒤에 붙일 경험 한 문장, 안목 한 문장을 만들어 보세요. 완성하면 큰 카드로 보여주거나 복사해서 단톡방에 올릴 수 있습니다.</p>
+  <p>내가 평소에 가장 많이 하는 질문 뒤에 붙일 경험 한 문장, 안목 한 문장을 만들어 보세요. 완성하면 강사 화면에 모이고, 큰 카드로 팀에 보여줄 수 있습니다.</p>
 </div>
 
 <nav class="tabs" aria-label="실습 단계">
   <div class="wrap" role="tablist">
     <button role="tab" id="tab-make" aria-controls="panel-make" aria-selected="true"><span class="num">1</span>만들기</button>
-    <button role="tab" id="tab-steal" aria-controls="panel-steal" aria-selected="false"><span class="num">2</span>다른 매장 화법</button>
-    <button role="tab" id="tab-pledge" aria-controls="panel-pledge" aria-selected="false"><span class="num">3</span>내일 해봄</button>
+    <button role="tab" id="tab-pledge" aria-controls="panel-pledge" aria-selected="false"><span class="num">2</span>내일 해봄</button>
   </div>
 </nav>
 
@@ -172,8 +155,8 @@ textarea{min-height:76px;resize:vertical}
         <ol>
           <li><b>적기</b> 내가 평소에 가장 많이 하는 질문을 고릅니다.</li>
           <li><b>더하기</b> 그 뒤에 붙일 경험 한 문장, 안목 한 문장을 만듭니다. 유형을 누르면 매장별 예시가 나옵니다.</li>
-          <li><b>훔쳐가기</b> “다른 매장 화법”에서 내 매장에 가져갈 것을 골라 카드에 담습니다.</li>
-          <li><b>발표</b> 완성 카드를 팀에 보여주거나, 복사해서 단톡방에 올립니다.</li>
+          <li><b>올리기</b> “완성 카드 만들기”를 누르면 강사 화면에 모입니다.</li>
+          <li><b>내일 해봄</b> 내일 매장에서 해볼 한 문장을 적어 올립니다.</li>
         </ol>
         <div class="compare">
           <span class="lbl">이렇게 바뀝니다</span>
@@ -182,17 +165,6 @@ textarea{min-height:76px;resize:vertical}
         </div>
       </aside>
     </div>
-  </section>
-
-  <section id="panel-steal" role="tabpanel" aria-labelledby="tab-steal" hidden>
-    <div class="toolbar">
-      <div class="chips" id="filterChips" role="group" aria-label="매장 필터"></div>
-      <span class="note" id="stealCount"></span>
-    </div>
-    <h2 class="secTitle">동료들이 올린 화법 <button class="linkbtn" type="button" id="liveRefresh">새로고침</button></h2>
-    <div class="gallery" id="live"></div>
-    <h2 class="secTitle next">예시 화법</h2>
-    <div class="gallery" id="gallery"></div>
   </section>
 
   <section id="panel-pledge" role="tabpanel" aria-labelledby="tab-pledge" hidden>
@@ -220,7 +192,6 @@ textarea{min-height:76px;resize:vertical}
     "식당":["몇 분이세요?","주문하시겠어요?","포인트 적립하시나요?","더 필요하신 거 있으세요?"],
     "기타":["뭐 찾으세요?","포인트 번호요?","주차하셨어요?"]
   };
-  const COLNAME={fashion:"패션·뷰티",food:"식품",rest:"식당"};
   const col=s=>(s==="식품"?"food":s==="식당"?"rest":"fashion");
   const EXP={
     "초대":{fashion:"두 가지 중 어느 쪽부터 입어보실래요?",food:"달콤한 거랑 새콤한 거, 어느 쪽부터 맛보실래요?",rest:"처음이시니 맵기는 중간부터 시작해 보실래요?"},
@@ -246,17 +217,12 @@ textarea{min-height:76px;resize:vertical}
     if(!r.ok)throw new Error(d.error||"저장하지 못했습니다.");
     return d;
   }
-  const lsSet=(k,set)=>ls.set(k,JSON.stringify([...set]));
-  const lsGetSet=k=>{try{return new Set(JSON.parse(ls.get(k)||"[]"));}catch(e){return new Set();}};
-  const mine=lsGetSet("hp_mine"), sentSteals=lsGetSet("hp_sentSteals");
-  const state={feed:null,store:ls.get("hp_store")||"",expType:"",eyeType:"",filter:"전체",card:null,stolen:[]};
-  try{state.stolen=JSON.parse(ls.get("hp_stolen")||"[]");}catch(e){}
+    const state={store:ls.get("hp_store")||"",expType:"",eyeType:"",card:null};
   try{state.card=JSON.parse(ls.get("hp_card")||"null");}catch(e){}
 
   /* tabs */
-  const TABS=["make","steal","pledge"];
-  let curTab="make";
-  function showTab(t){curTab=t;TABS.forEach(x=>{$("tab-"+x).setAttribute("aria-selected",String(x===t));$("panel-"+x).hidden=x!==t;});if(t==="steal")setTimeout(loadFeed,0);}
+  const TABS=["make","pledge"];
+  function showTab(t){TABS.forEach(x=>{$("tab-"+x).setAttribute("aria-selected",String(x===t));$("panel-"+x).hidden=x!==t;});}
   TABS.forEach(t=>$("tab-"+t).addEventListener("click",()=>showTab(t)));
   const h=(location.hash||"").slice(1); showTab(TABS.includes(h)?h:"make");
 
@@ -270,17 +236,6 @@ textarea{min-height:76px;resize:vertical}
 
   function msg(id,t,ok){const m=$(id);m.textContent=t;m.className="msg "+(ok?"ok":"err");}
 
-  function cardText(c){
-    const lines=["[한 문장 더하기] "+(c.nick||"")+" · "+(c.store||""),"“"+c.base+"” 뒤에"];
-    if(c.exp)lines.push("+ 경험"+(c.expType?"("+c.expType+")":"")+": “"+c.exp+"”");
-    if(c.eye)lines.push("+ 안목"+(c.eyeType?"("+c.eyeType+")":"")+": “"+c.eye+"”");
-    if(state.stolen.length){lines.push("훔쳐온 화법:");state.stolen.forEach(s=>lines.push("- “"+s.text+"” ("+s.from+")"));}
-    return lines.join("\n");
-  }
-  async function copyText(text,msgId){
-    try{await navigator.clipboard.writeText(text);msg(msgId,"복사했습니다. 단톡방에 붙여넣으세요.",true);}
-    catch(e){msg(msgId,"자동 복사가 안 되는 화면입니다. 카드 글자를 길게 눌러 복사해 주세요.");}
-  }
   function renderResult(){
     const box=$("result");box.replaceChildren();const c=state.card;
     if(!c){box.hidden=true;return;}
@@ -289,11 +244,8 @@ textarea{min-height:76px;resize:vertical}
       el("p",{class:"base",text:"“"+c.base+"” 뒤에"}),
       c.exp?el("div",{class:"line"},el("span",{class:"tag exp",text:"경험"+(c.expType?" · "+c.expType:"")}),el("p",{text:"“"+c.exp+"”"})):null,
       c.eye?el("div",{class:"line"},el("span",{class:"tag eye",text:"안목"+(c.eyeType?" · "+c.eyeType:"")}),el("p",{text:"“"+c.eye+"”"})):null,
-      state.stolen.length?el("div",{class:"stolenList"},el("span",{class:"lbl",text:"훔쳐온 화법"}),...state.stolen.map(s=>el("p",{text:"“"+s.text+"” · "+s.from}))):null,
       el("div",{class:"row"},
-        el("button",{class:"btn primary",type:"button",text:"복사해서 단톡방에 올리기",onclick:()=>copyText(cardText(c),"cardMsg")}),
-        el("button",{class:"btn ghost",type:"button",text:"새로 만들기",onclick:()=>{state.card=null;ls.set("hp_card","null");renderResult();window.scrollTo({top:0,behavior:"smooth"});}})),
-      el("p",{class:"msg",id:"cardMsg",role:"status"})
+        el("button",{class:"btn ghost",type:"button",text:"새로 만들기",onclick:()=>{state.card=null;ls.set("hp_card","null");renderResult();window.scrollTo({top:0,behavior:"smooth"});}}))
     );
     box.hidden=false;
   }
@@ -315,89 +267,18 @@ textarea{min-height:76px;resize:vertical}
     btn.disabled=true;msg("makeMsg","강사 화면에 올리는 중…",true);
     try{
       const d=await post("/api/entries",{team:c.nick,store:c.store,base:c.base,exp:c.exp,eye:c.eye,expType:c.expType,eyeType:c.eyeType});
-      mine.add(d.entry.id);lsSet("hp_mine",mine);ls.set("hp_sentCard",key);
+      ls.set("hp_sentCard",key);
       msg("makeMsg","완성했습니다. 강사 화면에도 올라갔어요. 아래 카드를 팀에 보여주세요.",true);
     }catch(e){msg("makeMsg","카드는 만들었지만 강사 화면에 올리지 못했습니다. 버튼을 한 번 더 눌러 주세요.");}
     finally{btn.disabled=false;}
   });
   renderResult();
 
-  /* steal gallery */
-  function allExamples(){
-    const out=[];
-    for(const [kind,map] of [["exp",EXP],["eye",EYE]])
-      for(const t of Object.keys(map))
-        for(const c of ["fashion","food","rest"]) out.push({id:kind+"-"+t+"-"+c,kind,type:t,col:c,text:map[t][c]});
-    return out;
-  }
-  const EXAMPLES=allExamples();
-  function renderFilter(){const b=$("filterChips");b.replaceChildren();["전체","패션·뷰티","식품","식당"].forEach(f=>b.append(el("button",{class:"chip",type:"button","aria-pressed":String(state.filter===f),text:f,onclick:()=>{state.filter=f;renderFilter();renderGallery();}})));}
-  function toggleSteal(x){
-    const i=state.stolen.findIndex(s=>s.id===x.id);
-    if(i>=0)state.stolen.splice(i,1);else state.stolen.push({id:x.id,text:x.text,from:COLNAME[x.col]});
-    ls.set("hp_stolen",JSON.stringify(state.stolen));renderGallery();renderResult();
-  }
-  function renderLive(){
-    const b=$("live");b.replaceChildren();
-    if(!state.feed){b.append(el("div",{class:"empty",text:"동료들의 화법을 불러오는 중입니다…"}));return;}
-    const list=state.feed.entries.filter(e=>state.filter==="전체"||COLNAME[col(e.store)]===state.filter).slice(0,80);
-    if(!list.length){b.append(el("div",{class:"empty",text:"아직 올라온 화법이 없습니다. 만들기에서 첫 카드를 올려 보세요."}));return;}
-    list.forEach(e=>{
-      const id="live-"+e.id, on=state.stolen.some(s=>s.id===id), own=mine.has(e.id), n=(state.feed.steals[e.id]||0);
-      b.append(el("article",{class:"ex"},
-        el("div",{class:"meta"},el("span",{class:"tag plain",text:(e.team||"익명")+" · "+(e.store||"")})),
-        el("span",{class:"base",text:"“"+(e.base||"")+"” 뒤에"}),
-        e.exp?el("span",{class:"tag exp",text:"경험"+(e.expType?" · "+e.expType:"")}):null,
-        e.exp?el("p",{text:"“"+e.exp+"”"}):null,
-        e.eye?el("span",{class:"tag eye",text:"안목"+(e.eyeType?" · "+e.eyeType:"")}):null,
-        e.eye?el("p",{text:"“"+e.eye+"”"}):null,
-        el("div",{class:"foot"},
-          el("span",{class:"count",text:n?n+"명이 가져갔어요":""}),
-          own?el("span",{class:"count",text:"내가 올린 카드"}):el("button",{class:"steal",type:"button","aria-pressed":String(on),text:on?"내 카드에 담김":"훔쳐가기",onclick:()=>toggleLive(e)}))));
-    });
-  }
-  function toggleLive(e){
-    const id="live-"+e.id, i=state.stolen.findIndex(s=>s.id===id);
-    if(i>=0)state.stolen.splice(i,1);
-    else{
-      state.stolen.push({id,text:[e.exp,e.eye].filter(Boolean).join(" / "),from:(e.team||"익명")+" · "+(e.store||"")});
-      if(!sentSteals.has(e.id)){
-        sentSteals.add(e.id);lsSet("hp_sentSteals",sentSteals);
-        state.feed.steals[e.id]=(state.feed.steals[e.id]||0)+1;
-        post("/api/steals",{entryId:e.id,store:state.store}).catch(()=>{sentSteals.delete(e.id);lsSet("hp_sentSteals",sentSteals);});
-      }
-    }
-    ls.set("hp_stolen",JSON.stringify(state.stolen));renderGallery();renderResult();
-  }
-  let loading=false;
-  async function loadFeed(){
-    if(loading)return;loading=true;
-    try{const r=await fetch("/api/feed",{cache:"no-store"});if(r.ok){state.feed=await r.json();renderLive();}}
-    catch(e){}finally{loading=false;}
-  }
-  $("liveRefresh").addEventListener("click",loadFeed);
-  setInterval(()=>{if(curTab==="steal"&&!document.hidden)loadFeed();},8000);
-  function renderGallery(){
-    renderLive();
-    const b=$("gallery");b.replaceChildren();
-    EXAMPLES.filter(x=>state.filter==="전체"||COLNAME[x.col]===state.filter).forEach(x=>{
-      const on=state.stolen.some(s=>s.id===x.id);
-      b.append(el("article",{class:"ex"},
-        el("div",{class:"meta"},el("span",{class:"tag "+x.kind,text:(x.kind==="exp"?"경험":"안목")+" · "+x.type}),el("span",{class:"tag plain",text:COLNAME[x.col]})),
-        el("p",{text:"“"+x.text+"”"}),
-        el("span",{class:"tip",text:TIPS[x.type]}),
-        el("button",{class:"steal",type:"button","aria-pressed":String(on),text:on?"내 카드에 담김":"훔쳐가기",onclick:()=>toggleSteal(x)})));
-    });
-    $("stealCount").textContent=state.stolen.length?"내 카드에 담은 화법 "+state.stolen.length+"개":"마음에 드는 화법을 훔쳐가면 완성 카드에 함께 담깁니다.";
-  }
-  renderFilter();renderGallery();
-
   /* pledge */
   function renderPledge(text){
     const b=$("pledgeCard");b.replaceChildren();
     if(!text){b.hidden=true;return;}
-    b.append(el("small",{text:"내일 매장에서, 딱 하나만 해봄"}),el("p",{text:text}),el("span",{class:"lbl",text:($("nick").value.trim()||ls.get("hp_nick")||"")+(state.store?" · "+state.store:"")}),
-      el("div",{class:"row"},el("button",{class:"btn primary",type:"button",text:"복사해서 단톡방에 올리기",onclick:()=>copyText("[내일 해봄] "+text,"pledgeMsg")})));
+    b.append(el("small",{text:"내일 매장에서, 딱 하나만 해봄"}),el("p",{text:text}),el("span",{class:"lbl",text:($("nick").value.trim()||ls.get("hp_nick")||"")+(state.store?" · "+state.store:"")}));
     b.hidden=false;
   }
   $("pledge").value=ls.get("hp_pledge")||"";

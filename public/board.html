@@ -41,6 +41,7 @@
   --accent-soft:#3A2226; --bar:#111113; --bar-ink:#F2F1EF; --ok:#5CC48F; color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;margin:0}
 .wrap{max-width:1180px;margin:0 auto;padding-inline:20px}
 header.top{background:var(--bar);color:var(--bar-ink)}
@@ -108,8 +109,6 @@ textarea{min-height:76px;resize:vertical}
 .entry .line{display:flex;flex-direction:column;gap:4px}
 .entry .line p{margin:0;font-size:17px;font-weight:700;line-height:1.5;overflow-wrap:anywhere}
 .entry .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.steal{appearance:none;font:inherit;font-size:14px;font-weight:700;border-radius:999px;padding:7px 14px;border:1px solid var(--accent);background:var(--bg);color:var(--accent);cursor:pointer;font-variant-numeric:tabular-nums}
-.steal[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
 .empty{grid-column:1/-1;background:var(--surface);border:1px dashed var(--line);border-radius:var(--radius);padding:36px 24px;text-align:center;color:var(--ink-2)}
 .empty h3{font-family:var(--font-display);margin:0 0 6px;color:var(--ink);font-size:20px}
@@ -124,7 +123,6 @@ footer.admin .row{justify-content:space-between}
 .login{max-width:420px;margin:12vh auto 0;display:flex;flex-direction:column;gap:14px}
 .login h1{font-family:var(--font-display);font-size:24px;margin:0}
 input[type=password]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
-span.steal{cursor:default}
 #loginView[hidden],#app[hidden]{display:none}
 </style>
 </head>
@@ -145,7 +143,7 @@ span.steal{cursor:default}
 <header class="top">
   <div class="wrap">
     <div class="brand"><span class="mark"></span><p>신세계백화점 판매역량 향상 교육 · 진행자 보드</p></div>
-    <div class="stats" aria-live="polite"><span>제출 <b id="statEntries">0</b></span><span>훔쳐가기 <b id="statSteals">0</b></span><span>내일 해봄 <b id="statPledges">0</b></span></div>
+    <div class="stats" aria-live="polite"><span>제출 <b id="statEntries">0</b></span><span>내일 해봄 <b id="statPledges">0</b></span></div>
   </div>
 </header>
 
@@ -156,7 +154,7 @@ span.steal{cursor:default}
 
 <nav class="tabs" aria-label="실습 단계">
   <div class="wrap" role="tablist">
-    <button role="tab" id="tab-board" aria-controls="panel-board" aria-selected="true"><span class="num">1</span>모아보기 · 훔쳐가기</button>
+    <button role="tab" id="tab-board" aria-controls="panel-board" aria-selected="true"><span class="num">1</span>모아보기</button>
     <button role="tab" id="tab-pledge" aria-controls="panel-pledge" aria-selected="false"><span class="num">2</span>내일 해봄</button>
   </div>
 </nav>
@@ -167,10 +165,6 @@ span.steal{cursor:default}
   <section class="panel" id="panel-board" role="tabpanel" aria-labelledby="tab-board">
     <div class="toolbar">
       <div class="chips" id="filterChips" role="group" aria-label="매장 필터"></div>
-      <div class="chips" role="group" aria-label="정렬">
-        <button class="chip" type="button" id="sortNew" aria-pressed="true">최신순</button>
-        <button class="chip" type="button" id="sortHot" aria-pressed="false">많이 훔쳐간 순</button>
-      </div>
     </div>
     <div class="board" id="board"></div>
   </section>
@@ -184,7 +178,7 @@ span.steal{cursor:default}
   <div class="wrap row">
     <span>진행자 전용 · 다음 회차 전에 보드를 비웁니다.</span>
     <div class="row">
-      <span id="resetConfirmText" hidden>정말 모든 제출·훔쳐가기·약속을 지울까요?</span>
+      <span id="resetConfirmText" hidden>정말 모든 제출과 약속을 지울까요?</span>
       <button class="btn ghost" type="button" id="resetBtn">보드 비우기</button>
       <button class="btn primary" type="button" id="resetYes" hidden>네, 지웁니다</button>
       <button class="btn ghost" type="button" id="resetNo" hidden>취소</button>
@@ -203,7 +197,7 @@ span.steal{cursor:default}
     get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
     set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
   };
-  const state = { entries:[], steals:{}, totalSteals:0, pledges:[], filter:"전체", sort:"new" };
+  const state = { entries:[], pledges:[], filter:"전체" };
 
   function el(tag, attrs, ...kids){
     const n = document.createElement(tag);
@@ -230,13 +224,10 @@ span.steal{cursor:default}
     const box=$("filterChips"); box.replaceChildren();
     ["전체", ...STORES].forEach(s=> box.append(el("button",{class:"chip",type:"button","aria-pressed":String(state.filter===s),text:s,onclick:()=>{ state.filter=s; renderFilter(); renderBoard(); }})));
   }
-  $("sortNew").addEventListener("click",()=>{ state.sort="new"; $("sortNew").setAttribute("aria-pressed","true"); $("sortHot").setAttribute("aria-pressed","false"); renderBoard(); });
-  $("sortHot").addEventListener("click",()=>{ state.sort="hot"; $("sortHot").setAttribute("aria-pressed","true"); $("sortNew").setAttribute("aria-pressed","false"); renderBoard(); });
 
   function renderBoard(){
     const box=$("board"); box.replaceChildren();
     let list = state.entries.filter(e=> state.filter==="전체" || e.store===state.filter);
-    if(state.sort==="hot") list = [...list].sort((a,b)=> (state.steals[b.id]||0)-(state.steals[a.id]||0) || b.createdAt-a.createdAt);
     if(!list.length){
       box.append(el("div",{class:"empty"},
         el("h3",{text: state.entries.length ? "이 매장의 제출이 아직 없습니다" : "아직 올라온 한 문장이 없습니다"}),
@@ -244,15 +235,11 @@ span.steal{cursor:default}
       return;
     }
     list.forEach(e=>{
-      const n = state.steals[e.id]||0;
       box.append(el("article",{class:"entry"},
         el("div",{class:"meta"}, el("b",{text:e.team||"익명"}), el("span",{class:"tag",text:e.store||""})),
         el("div",{class:"base",text:"“"+(e.base||"")+"” 뒤에"}),
         e.exp ? el("div",{class:"line"}, el("span",{class:"lbl"}, el("span",{class:"tag exp",text:"경험"+(e.expType?" · "+e.expType:"")})), el("p",{text:"“"+e.exp+"”"})) : null,
-        e.eye ? el("div",{class:"line"}, el("span",{class:"lbl"}, el("span",{class:"tag eye",text:"안목"+(e.eyeType?" · "+e.eyeType:"")})), el("p",{text:"“"+e.eye+"”"})) : null,
-        el("div",{class:"foot"},
-          el("span",{class:"count",text: n ? n+"명이 가져갔어요" : "아직 아무도 안 가져갔어요"}),
-          n ? el("span",{class:"steal","aria-pressed":"true",text:"훔쳐가기 "+n}) : null)
+        e.eye ? el("div",{class:"line"}, el("span",{class:"lbl"}, el("span",{class:"tag eye",text:"안목"+(e.eyeType?" · "+e.eyeType:"")})), el("p",{text:"“"+e.eye+"”"})) : null
       ));
     });
   }
@@ -268,7 +255,6 @@ span.steal{cursor:default}
 
   function renderStats(){
     $("statEntries").textContent = state.entries.length;
-    $("statSteals").textContent = state.totalSteals;
     $("statPledges").textContent = state.pledges.length;
   }
 
@@ -283,7 +269,7 @@ span.steal{cursor:default}
       if(text===lastJson) return;
       lastJson = text;
       const d = JSON.parse(text);
-      state.entries=d.entries||[]; state.steals=d.steals||{}; state.totalSteals=d.totalSteals||0; state.pledges=d.pledges||[];
+      state.entries=d.entries||[]; state.pledges=d.pledges||[];
       renderBoard(); renderPledges(); renderStats();
     }catch(e){ $("offline").hidden = false; }
   }
@@ -299,7 +285,7 @@ span.steal{cursor:default}
       const r = await fetch("/api/admin/reset", {method:"POST"});
       if(r.status===401){ location.reload(); return; }
       if(!r.ok) throw new Error();
-      state.entries=[]; state.steals={}; state.totalSteals=0; state.pledges=[]; lastJson="";
+      state.entries=[]; state.pledges=[]; lastJson="";
       renderBoard(); renderPledges(); renderStats();
       setMsg("resetMsg","보드를 비웠습니다.", true);
     }catch(e){ setMsg("resetMsg","비우지 못했습니다. 다시 시도해 주세요."); }
